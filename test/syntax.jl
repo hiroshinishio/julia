@@ -3864,3 +3864,11 @@ end
         @test isa(expr.args[1], Union{GlobalRef, Symbol})
     end
 end
+
+# Test importing the same module twice using two different paths
+module FooDualImport
+end
+module BarDualImport
+import ..FooDualImport
+import ..FooDualImport.FooDualImport
+end
