@@ -1738,7 +1738,7 @@ function late_inline_special_case!(ir::IRCode, idx::Int, stmt::Expr, flag::UInt3
         cmp_call_ssa = insert_node!(ir, idx, removable_if_unused(NewInstruction(cmp_call, Bool)))
         not_call = Expr(:call, GlobalRef(Core.Intrinsics, :not_int), cmp_call_ssa)
         return SomeCase(not_call)
-    elseif length(argtypes) == 3 && istopfunction(f, :(>:))
+    elseif length(argtypes) == 3 && f === Core.:(>:)
         # special-case inliner for issupertype
         # that works, even though inference generally avoids inferring the `>:` Method
         if isa(type, Const) && has_flag(flag, IR_FLAG_NOTHROW)

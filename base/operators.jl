@@ -58,12 +58,14 @@ but which do not execute the operator or return a Bool:
 """
 (<:)
 
+const >: = Core.:(>:)
+
 """
     >:(T1, T2)
 
 Supertype operator, equivalent to `T2 <: T1`.
 """
-(>:)(@nospecialize(a), @nospecialize(b)) = (b <: a)
+>:
 
 """
     supertype(T::Union{DataType, UnionAll})

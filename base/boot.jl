@@ -1012,6 +1012,28 @@ const check_top_bit = check_sign_bit
 EnterNode(old::EnterNode, new_dest::Int) = isdefined(old, :scope) ?
     EnterNode(new_dest, old.scope) : EnterNode(new_dest)
 
+# `typename` has special tfunc support in inference to improve
+# the result for `Type{Union{...}}`. It is defined here, so that the Compiler
+# can look it up by value.
+struct TypeNameError <: Exception
+    a
+    TypeNameError(@nospecialize(a)) = new(a)
+end
+
+typename(a) = throw(TypeNameError(a))
+typename(a::DataType) = a.name
+function typename(a::Union)
+    ta = typename(a.a)
+    tb = typename(a.b)
+    ta === tb || throw(TypeNameError(a))
+    return tb
+end
+typename(union::UnionAll) = typename(union.body)
+
+# Special inference support to avoid execess specialization of this method.
+# TODO: Replace this by a generic heuristic.
+(>:)(@nospecialize(a), @nospecialize(b)) = (b <: a)
+
 include(Core, "optimized_generics.jl")
 
 ccall(:jl_set_istopmod, Cvoid, (Any, Bool), Core, true)
