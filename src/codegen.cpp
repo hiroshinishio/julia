@@ -2179,8 +2179,7 @@ static jl_value_t *StackFrame(
 static void push_frames(jl_codectx_t &ctx, jl_method_instance_t *caller, jl_method_instance_t *callee, int no_debug=false)
 {
     CallFrames frames;
-    auto it = ctx.emission_context.enqueuers.find(callee);
-    if (it != ctx.emission_context.enqueuers.end())
+    if (ctx.emission_context.enqueuers.count(callee) != 0)
         return;
     if (no_debug) { // Used in tojlinvoke
         frames.push_back({ctx.funcName, "", 0});
@@ -2214,12 +2213,12 @@ static jl_array_t* build_stack_crumbs(jl_codectx_t &ctx) JL_NOTSAFEPOINT
     while (true) {
         auto it = ctx.emission_context.enqueuers.find(caller);
         if (it != ctx.emission_context.enqueuers.end()) {
+            assert(ctx.emission_context.enqueuers.count(caller) == 1);
             caller = std::get<jl_method_instance_t *>(it->second);
         } else {
             break;
         }
         if (caller) {
-            assert(ctx.emission_context.enqueuers.count(caller) == 1);
             if (jl_is_method_instance(caller)) {
                 //TODO: Use a subrange when C++20 is a thing
                 for (auto it2 = std::get<CallFrames>(it->second).begin(); it2 != (std::prev(std::get<CallFrames>(it->second).end())); ++it2) {
