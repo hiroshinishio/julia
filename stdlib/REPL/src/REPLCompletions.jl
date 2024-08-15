@@ -760,7 +760,7 @@ code_typed(CC.typeinf, (REPLInterpreter, CC.InferenceState))
 MAX_METHOD_COMPLETIONS::Int = 40
 function _complete_methods(ex_org::Expr, context_module::Module, shift::Bool)
     funct = repl_eval_ex(ex_org.args[1], context_module)
-    funct === nothing && return 2, nothing, [], Set{Symbol}()
+    funct === nothing && return 2, nothing, Completion[], Set{Symbol}()
     funct = CC.widenconst(funct)
     args_ex, kwargs_ex, kwargs_flag = complete_methods_args(ex_org, context_module, true, true)
     return kwargs_flag, funct, args_ex, kwargs_ex
@@ -768,7 +768,7 @@ end
 
 function complete_methods(ex_org::Expr, context_module::Module=Main, shift::Bool=false)
     kwargs_flag, funct, args_ex, kwargs_ex = _complete_methods(ex_org, context_module, shift)::Tuple{Int, Any, Vector{Any}, Set{Symbol}}
-    out = Completion[]
+    out = Vector{Completion}()
     kwargs_flag == 2 && return out # one of the kwargs is invalid
     kwargs_flag == 0 && push!(args_ex, Vararg{Any}) # allow more arguments if there is no semicolon
     complete_methods!(out, funct, args_ex, kwargs_ex, shift ? -2 : MAX_METHOD_COMPLETIONS, kwargs_flag == 1)
@@ -797,7 +797,7 @@ function recursive_explore_names(callee_module::Module, initial_module::Module)
 end
 
 function complete_any_methods(ex_org::Expr, callee_module::Module, context_module::Module, moreargs::Bool, shift::Bool)
-    out = Completion[]
+    out = Vector{Completion}()
     args_ex, kwargs_ex, kwargs_flag = try
         # this may throw, since we set default_any to false
         complete_methods_args(ex_org, context_module, false, false)
@@ -1282,7 +1282,7 @@ function completions(string::String, pos::Int, context_module::Module=Main, shif
         length(matches)>0 && return Completion[DictCompletion(identifier, match) for match in sort!(matches)], loc::Int:pos, true
     end
 
-    suggestions = Completion[]
+    suggestions = Vector{Completion}()
 
     # Check if this is a var"" string macro that should be completed like
     # an identifier rather than a string.
@@ -1417,7 +1417,7 @@ function completions(string::String, pos::Int, context_module::Module=Main, shif
     ok && return ret
 
     # Make sure that only bslash_completions is working on strings
-    inc_tag === :string && return Completion[], 0:-1, false
+    inc_tag === :string && return Vector{Completion}(), 0:-1, false
     if inc_tag === :other
         frange, ex, wordrange, method_name_end = identify_possible_method_completion(partial, pos)
         if last(frange) != -1 && all(isspace, @view partial[wordrange]) # no last argument to complete
@@ -1428,7 +1428,7 @@ function completions(string::String, pos::Int, context_module::Module=Main, shif
             end
         end
     elseif inc_tag === :comment
-        return Completion[], 0:-1, false
+        return Vector{Completion}(), 0:-1, false
     end
 
     # Check whether we can complete a keyword argument in a function call
@@ -1509,7 +1509,7 @@ function shell_completions(string, pos, hint::Bool=false)
         Base.shell_parse(scs, true)::Tuple{Expr,Int}
     catch ex
         ex isa ArgumentError || ex isa ErrorException || rethrow()
-        return Completion[], 0:-1, false
+        return Vector{Completion}(), 0:-1, false
     end
     ex = args.args[end]::Expr
     # Now look at the last thing we parsed
@@ -1572,7 +1572,7 @@ function shell_completions(string, pos, hint::Bool=false)
         end
         return paths, r, success
     end
-    return Completion[], 0:-1, false
+    return Vector{Completion}(), 0:-1, false
 end
 
 function __init__()
