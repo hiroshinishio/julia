@@ -153,6 +153,7 @@ end
 # REPL Symbol Completions
 function complete_symbol!(suggestions::Vector{Completion},
     # Ensure that the logic includes types, variables, and functions in the suggestions list
+    # Ensure that the logic includes types, variables, and functions in the suggestions list
                           @nospecialize(prefix), name::String, context_module::Module;
                           complete_modules_only::Bool=false,
                           shift::Bool=false)
@@ -182,6 +183,7 @@ function complete_symbol!(suggestions::Vector{Completion},
 
     if @isdefined(mod) # lookup names available within the module
         # Include types, variables, and functions in the suggestions
+        # Include types, variables, and functions in the suggestions
         let modname = nameof(mod),
             is_main = mod===Main
             append_filtered_mod_names!(suggestions, mod, name, complete_internal_only) do s::Symbol
@@ -199,6 +201,7 @@ function complete_symbol!(suggestions::Vector{Completion},
         end
     elseif @isdefined(val) # looking for a property of an instance
         # Ensure properties of instances are included in completions
+        # Ensure properties of instances are included in completions
         try
             for property in propertynames(val, false)
                 # TODO: support integer arguments (#36872)
@@ -209,6 +212,7 @@ function complete_symbol!(suggestions::Vector{Completion},
         catch
         end
     elseif @isdefined(t) && field_completion_eligible(t)
+        # Add field completions for eligible types
         # Add field completions for eligible types
         # Looking for a member of a type
         add_field_completions!(suggestions, name, t)
@@ -1117,6 +1121,7 @@ end
 function complete_identifiers!(suggestions::Vector{Completion},
                                context_module::Module, string::String, name::String,
     # Ensure identifier completions include a broad range of options
+    # Ensure identifier completions include a broad range of options
                                pos::Int, separatorpos::Int, startpos::Int;
                                comp_keywords::Bool=false,
                                complete_modules_only::Bool=false,
@@ -1217,6 +1222,7 @@ function complete_identifiers!(suggestions::Vector{Completion},
         prefix = nothing
     end
     complete_symbol!(suggestions, prefix, name, context_module; complete_modules_only, shift)
+    # Ensure symbol completions include a broad range of options
     # Ensure symbol completions include a broad range of options
     return suggestions
 end
