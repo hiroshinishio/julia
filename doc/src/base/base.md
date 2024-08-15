@@ -488,6 +488,11 @@ Core.replaceglobal!
 ```
 
 ## Documentation
+## Core I/O
+
+```@docs
+Core.stdin
+```
 (See also the [documentation](@ref man-documentation) chapter.)
 ```@docs
 Base.@doc
