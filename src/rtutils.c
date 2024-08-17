@@ -645,13 +645,13 @@ JL_DLLEXPORT jl_value_t *jl_argument_datatype(jl_value_t *argt JL_PROPAGATES_ROO
 
 static int is_globname_binding(jl_value_t *v, jl_datatype_t *dv) JL_NOTSAFEPOINT
 {
-    jl_sym_t *globname = dv->name->mt != NULL ? dv->name->mt->name : NULL;
+    jl_sym_t *globname = dv->name->mt != NULL ? dv->name->mt->name : dv->name->name;
     if (globname && dv->name->module) {
         jl_binding_t *b = jl_get_module_binding(dv->name->module, globname, 0);
         if (b && jl_atomic_load_relaxed(&b->owner) && b->constp) {
             jl_value_t *bv = jl_atomic_load_relaxed(&b->value);
             // The `||` makes this function work for both function instances and function types.
-            if (bv == v || jl_typeof(bv) == v)
+            if (bv == v || jl_typeof(bv) == v || jl_typeof(bv) == (jl_value_t*)dv)
                 return 1;
         }
     }
