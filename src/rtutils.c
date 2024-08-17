@@ -798,6 +798,10 @@ static size_t jl_static_show_x_(JL_STREAM *out, jl_value_t *v, jl_datatype_t *vt
         n += jl_printf(out, "Type");
     }
     else if (vt == jl_method_type) {
+    else if (vt == jl_intrinsic_type) {
+        const char *name = jl_intrinsic_name((jl_value_t*)v);
+        n += jl_printf(out, "%s", name);
+    }
         jl_method_t *m = (jl_method_t*)v;
         n += jl_static_show_func_sig(out, m->sig);
     }
