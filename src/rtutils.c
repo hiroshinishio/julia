@@ -928,8 +928,9 @@ static size_t jl_static_show_x_(JL_STREAM *out, jl_value_t *v, jl_datatype_t *vt
         }
     }
     else if (vt == jl_intrinsic_type) {
+        const char *name = jl_intrinsic_name(*(uint32_t*)jl_data_ptr(v));
         int f = *(uint32_t*)jl_data_ptr(v);
-        n += jl_printf(out, "#<intrinsic #%d %s>", f, jl_intrinsic_name(f));
+        n += jl_printf(out, "#<intrinsic %s>", name);
     }
     else if (vt == jl_int64_type) {
         n += jl_printf(out, "%" PRId64, *(int64_t*)v);
