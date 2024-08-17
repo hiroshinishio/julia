@@ -651,7 +651,7 @@ static int is_globname_binding(jl_value_t *v, jl_datatype_t *dv) JL_NOTSAFEPOINT
         if (b && jl_atomic_load_relaxed(&b->owner) && b->constp) {
             jl_value_t *bv = jl_atomic_load_relaxed(&b->value);
             // The `||` makes this function work for both function instances and function types.
-            if (bv == v || jl_typeof(bv) == v)
+            if (bv == v || (jl_typeof(bv) == v && is_value)) // Use is_value to determine the branch
                 return 1;
         }
     }
